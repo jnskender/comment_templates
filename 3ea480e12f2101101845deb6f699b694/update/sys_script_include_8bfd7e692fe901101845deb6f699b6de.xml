@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_184695_ct.CommentTemplateUtil</api_name>
+        <caller_access>1</caller_access>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>CommentTemplateUtil</name>
+        <script><![CDATA[var CommentTemplateUtil = Class.create();
+CommentTemplateUtil.prototype = {
+    initialize: function() {
+    },
+
+    /**
+     *
+     * @param {*} templateGR
+     * @param {*} recordGR
+     * @example
+     *
+      var ctUtil = new x_184695_ct.CommentTemplateUtil()
+      var template = new GlideRecord('x_184695_ct_comment_template');
+      template.get('50e880292f2101101845deb6f699b672');
+
+      var incident = new GlideRecord('incident');
+      incident.get('95f518652f6101101845deb6f699b67b');
+
+      ctUtil.applyTemplate(template, incident);
+     * @returns
+     */
+    applyTemplate: function (templateGR, recordGR) {
+      var templateString = templateGR.html_message.getHTMLValue();
+
+      var c2html = new x_184695_ct.commentTemplateToHTML(
+        recordGR.getTableName(),
+        recordGR.getValue("sys_id"),
+        templateString
+      );
+
+      var t = c2html.toString();
+
+     recordGR.comments = "[code]" + t + "[/code]";
+     recordGR.update()
+     return t;
+    },
+
+    type: 'CommentTemplateUtil'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>jnskender</sys_created_by>
+        <sys_created_on>2022-02-08 14:58:50</sys_created_on>
+        <sys_id>8bfd7e692fe901101845deb6f699b6de</sys_id>
+        <sys_mod_count>22</sys_mod_count>
+        <sys_name>CommentTemplateUtil</sys_name>
+        <sys_package display_value="Comment Template" source="x_184695_ct">3ea480e12f2101101845deb6f699b694</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Comment Template">3ea480e12f2101101845deb6f699b694</sys_scope>
+        <sys_update_name>sys_script_include_8bfd7e692fe901101845deb6f699b6de</sys_update_name>
+        <sys_updated_by>jnskender</sys_updated_by>
+        <sys_updated_on>2022-02-08 16:05:40</sys_updated_on>
+    </sys_script_include>
+</record_update>

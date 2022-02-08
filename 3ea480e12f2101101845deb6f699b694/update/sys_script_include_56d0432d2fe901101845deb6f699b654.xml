@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_184695_ct.commentTemplateToHTML</api_name>
+        <caller_access>1</caller_access>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>commentTemplateToHTML</name>
+        <script><![CDATA[var commentTemplateToHTML = Class.create();
+commentTemplateToHTML.prototype = {
+
+    /*
+     *
+     * table: the name of the table from which this record comes
+     * sys_id: the sys_id of the record
+     * pattern: the pattern of the string we want to generate.  The pattern may include ${} escapes for fields whose values should
+     *          be included.  For instance, the pattern "sys_id: ${sys_id}" would substitute the actual sys_id's value for the escape.
+     * link: a boolean, true if the pattern is to be surrounded by an "a" tag to link to the object in question.
+     */
+    initialize: function(table, sys_id, pattern, link) {
+        this.table = table;
+        this.sys_id = sys_id;
+        this.pattern = pattern;
+        this.values = {};
+        this.link = link;
+        this.values['sys_id'] = sys_id;
+    },
+
+    /*
+     * Set a field value.  This is useful if the calling code has already read the underlying GlideRecord, and wants to avoid
+     * the overhead of another database read.
+     */
+    setValue: function(name, value) {
+        this.values[name] = value;
+    },
+
+    /*
+     * Converts this instance to a string.
+     */
+    toString: function() {
+        // some setup...
+        var gr = new GlideRecord(this.table);
+        var gr_read = false;
+        var regex = /\$\{([\w\d.]+)\}/; // example on first iteration
+        //"Change ${number} has a state of ${state} created on ${sys_created_on}"
+        //     ["${number}","number"]
+
+        // make all our escape substitutions...
+        var regexReturn = regex.exec(this.pattern);
+        var arrayUtil = new global.ArrayUtil();
+        var fieldNames = [];
+
+        while (regexReturn) {
+            var toReplace = regexReturn[0];
+            var fieldName = regexReturn[1];
+            if (arrayUtil.contains(fieldNames, fieldName)) {
+                gs.error("Closed chain detected for field " + fieldName + " in table " + this.table + ". RecordToHTML script execution terminated!");
+                break;
+            }
+            var fieldValue = this.values[fieldName];
+            if (!fieldValue) {
+                if (!gr_read) {
+                    gr.get(this.sys_id);
+                    gr_read = true;
+                }
+                if(fieldName === "URI_REF"){
+                  fieldValue = '<a target="_blank" href="' + gs.getProperty("glide.servlet.uri") + gr.getLink() + '">' + gr.getDisplayValue() + "</a>"
+                } else {
+                  fieldValue = gr.getDisplayValue(fieldName) || "NULL";
+                }
+                this.values[fieldName] = fieldValue;
+            }
+            this.pattern = this.pattern.replace(toReplace, fieldValue);
+            fieldNames.push(fieldName);
+            if (!regex.exec(fieldValue)) {
+              fieldNames = [];
+            }
+            regexReturn = regex.exec(this.pattern);
+        }
+
+        // surround with an "a" tag, if this is to be a link...
+        if (this.link)
+            this.pattern = '<a href="' + this.table + '.do?sys_id=' + this.sys_id + '"><u>' + this.pattern + '</u></a>';
+
+        return this.pattern;
+    },
+    type: "commentTemplateToHTML"
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>jnskender</sys_created_by>
+        <sys_created_on>2022-02-08 15:13:02</sys_created_on>
+        <sys_id>56d0432d2fe901101845deb6f699b654</sys_id>
+        <sys_mod_count>29</sys_mod_count>
+        <sys_name>commentTemplateToHTML</sys_name>
+        <sys_package display_value="Comment Template" source="x_184695_ct">3ea480e12f2101101845deb6f699b694</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="Comment Template">3ea480e12f2101101845deb6f699b694</sys_scope>
+        <sys_update_name>sys_script_include_56d0432d2fe901101845deb6f699b654</sys_update_name>
+        <sys_updated_by>jnskender</sys_updated_by>
+        <sys_updated_on>2022-02-08 17:00:39</sys_updated_on>
+    </sys_script_include>
+</record_update>
